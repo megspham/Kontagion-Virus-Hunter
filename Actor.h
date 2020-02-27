@@ -11,35 +11,35 @@ class Actor : public GraphObject
 public:
     Actor(int imageID, double x, double y, int dir, int depth, StudentWorld* w);
     virtual ~Actor ();
-      // Action to perform for each tick.
+    // Action to perform for each tick.
     virtual void doSomething() = 0;
-
-      // Is this actor dead?
+    
+    // Is this actor dead?
     bool isAlive() const;
     
-      // Mark this actor as dead.
+    // Mark this actor as dead.
     void setDead();
-
-      // Get this actor's world
+    
+    // Get this actor's world
     StudentWorld* getWorld() const;
-
-      // If this actor can suffer damage, make it do so and return true;
-      // otherwise, return false.
+    
+    // If this actor can suffer damage, make it do so and return true;
+    // otherwise, return false.
     virtual bool takeDamage(int damage);
-
-      // Does this object block bacterium movement?
+    
+    // Does this object block bacterium movement?
     virtual bool canBlock() const;
-
-      // Is this object edible?
+    
+    // Is this object edible?
     virtual bool isEdible() const;
-
-      // Does the existence of this object prevent a level from being completed?
+    
+    // Does the existence of this object prevent a level from being completed?
     virtual bool preventsLevelCompleting() const;
     
 private:
     int m_life;
     StudentWorld* m_world;
-
+    
 };
 
 
@@ -89,14 +89,14 @@ class Spray : public Projectile
 {
 public:
     Spray(double x, double y, Direction dir, StudentWorld *w);
-   // virtual void doSomething();
+    // virtual void doSomething();
 };
 
 class Flame : public Projectile
 {
 public:
     Flame(double x, double y, Direction dir, StudentWorld *w);
-   // virtual void doSomething();
+    // virtual void doSomething();
 };
 
 class Goodie : public Actor
@@ -105,7 +105,7 @@ public:
     Goodie(int imageID, double x, double y, int lifetime, StudentWorld *w);
     virtual bool takeDamage(int);
     virtual void doSomething();
-      // Have s pick up this goodie.
+    // Have s pick up this goodie.
     virtual void pickUp(Socrates* s) = 0;
     
 private:
@@ -145,18 +145,18 @@ class Agent : public Actor
 public:
     Agent(int imageID, double x, double y, int hp, Direction dir, StudentWorld *w);
     virtual bool takeDamage(int damage);
-
-      // How many hit points does this agent currently have?
-    int numHitPoints() const;
-
-      // Restore this agent's hit points to their original level
-    void restoreHealth();
-
     
-      // What sound should play when this agent is damaged but does not die?
+    // How many hit points does this agent currently have?
+    int numHitPoints() const;
+    
+    // Restore this agent's hit points to their original level
+    void restoreHealth();
+    
+    
+    // What sound should play when this agent is damaged but does not die?
     virtual int soundWhenHurt() const = 0;
-
-      // What sound should play when this agent is damaged and dies?
+    
+    // What sound should play when this agent is damaged and dies?
     virtual int soundWhenDie() const = 0;
 private:
     int m_hp;
@@ -169,14 +169,14 @@ public:
     virtual void doSomething();
     virtual int soundWhenHurt() const;
     virtual int soundWhenDie() const;
-
-      // Increase the number of flamethrower charges the object has.
+    
+    // Increase the number of flamethrower charges the object has.
     void addFlames();
-
-      // How many flamethrower charges does the object have?
+    
+    // How many flamethrower charges does the object have?
     int numFlames() const;
-
-      // How many spray charges does the object have?
+    
+    // How many spray charges does the object have?
     int numSprays() const;
     
 private:
@@ -227,7 +227,7 @@ class RegularSalmonella : public Salmonella
 public:
     RegularSalmonella( double x, double y, StudentWorld* w);
     virtual void doSomething();
-
+    
 };
 
 
@@ -236,7 +236,7 @@ class AggSalmonella : public Salmonella
 public:
     AggSalmonella(double x, double y, StudentWorld* w);
     virtual void doSomething();
-
+    
 };
 
 

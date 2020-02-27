@@ -45,7 +45,7 @@ bool Actor:: isEdible() const{
     return false;
 }
 
-     // Does the existence of this object prevent a level from being completed?
+// Does the existence of this object prevent a level from being completed?
 bool Actor:: preventsLevelCompleting() const{
     return false;
 }
@@ -102,7 +102,7 @@ Pit :: Pit (double startX, double startY, int regsal, int aggsal, int ecoli, Stu
     m_regsal = regsal;
     m_aggsal = aggsal;
     m_ecoli = ecoli;
-
+    
     
 }
 
@@ -158,10 +158,10 @@ Projectile:: Projectile (int imageID, double startX, double startY, Direction di
 }
 
 void Projectile:: doSomething (){
-
+    
     if (!isAlive())
         return;
-
+    
     if (m_maxDis>0){
         moveForward(SPRITE_WIDTH);
         m_maxDis-=SPRITE_WIDTH;
@@ -169,14 +169,14 @@ void Projectile:: doSomething (){
             setDead();
             return;
         }
-
+        
     }
     if (m_maxDis==0) {
         setDead();
     }
     
     
-
+    
 }
 
 
@@ -206,24 +206,24 @@ Flame:: Flame (double startX, double startY, Direction dir, StudentWorld *w): Pr
 Goodie:: Goodie (int imageID, double startX, double startY, int lifetime, StudentWorld *w):Actor(imageID, startX, startY, 0, 1, w){
     m_lifetime=lifetime;
 }
- bool Goodie:: takeDamage(int){
-     setDead();
-     return true;
+bool Goodie:: takeDamage(int){
+    setDead();
+    return true;
 }
 
- void Goodie:: doSomething(){
-     m_lifetime --;
-     
-     if (!isAlive())
-         return;
-     
-     Socrates *s =getWorld()->getOverlappingSocrates(this);
-     if (s!=nullptr){
-         pickUp(s);
-         return;
-     }
-     if (m_lifetime==0) setDead();
- }
+void Goodie:: doSomething(){
+    m_lifetime --;
+    
+    if (!isAlive())
+        return;
+    
+    Socrates *s =getWorld()->getOverlappingSocrates(this);
+    if (s!=nullptr){
+        pickUp(s);
+        return;
+    }
+    if (m_lifetime==0) setDead();
+}
 
 
 //*************************************
@@ -311,8 +311,8 @@ bool Agent::takeDamage(int damage){
         setDead();
         getWorld()->playSound(soundWhenDie());
     }
-        return true;
-   
+    return true;
+    
 }
 
 int Agent::numHitPoints() const{
@@ -484,73 +484,73 @@ bool Bacteria::helper(int &x, int &y){
 // E. COLI FUNCTIONS
 //*************************************
 EColi:: EColi (double startX, double startY, StudentWorld *w): Bacteria(IID_ECOLI, startX, startY, 0, 5, w) {
-
+    
 }
 
 void EColi:: doSomething(){
     int x,y;
     
     if (!isAlive())
-          return;
+        return;
     
     //step 2
-      Socrates *p = getWorld()->getOverlappingSocrates(this);
-      if (p!=nullptr){
-          p->takeDamage(-4);
-          if(getWorld()->getAngleToNearbySocrates(this, 256, theta)){
+    Socrates *p = getWorld()->getOverlappingSocrates(this);
+    if (p!=nullptr){
+        p->takeDamage(-4);
+        if(getWorld()->getAngleToNearbySocrates(this, 256, theta)){
+            
+            for(int i=0; i< 10; i++){
+                setDirection(theta);
+                double newX = (getX() + 1 * cos(theta*1.0 / 360 * 2 * PI));
+                double newY = (getY() + 1 * sin(theta*1.0 / 360 * 2 * PI));
                 
-                 for(int i=0; i< 10; i++){
-                     setDirection(theta);
-                     double newX = (getX() + 1 * cos(theta*1.0 / 360 * 2 * PI));
-                     double newY = (getY() + 1 * sin(theta*1.0 / 360 * 2 * PI));
-                     
-                     if (!getWorld()->isBacteriaMovementBlockedAt(newX, newY) && (getWorld()->distance(VIEW_WIDTH/2, VIEW_HEIGHT/2, newX, newY) < VIEW_RADIUS)){
-                         moveTo(newX, newY);
-                         return;
-                     }
-                     
-                     else {
-                         theta+=10;
-                         setDirection(theta);
-                     }
-                 }
-                 return;
-                 
-
-             }
-      }
+                if (!getWorld()->isBacteriaMovementBlockedAt(newX, newY) && (getWorld()->distance(VIEW_WIDTH/2, VIEW_HEIGHT/2, newX, newY) < VIEW_RADIUS)){
+                    moveTo(newX, newY);
+                    return;
+                }
+                
+                else {
+                    theta+=10;
+                    setDirection(theta);
+                }
+            }
+            return;
+            
+            
+        }
+    }
     
     //step 3
     if (Bacteria::helper(x,y)){
         Bacteria *b = new EColi (x, y, getWorld() );
-               getWorld()->addActor(b);
+        getWorld()->addActor(b);
         
         if(getWorld()->getAngleToNearbySocrates(this, 256, theta)){
-              
-               for(int i=0; i< 10; i++){
-                   setDirection(theta);
-                   double newX = (getX() + 1 * cos(theta*1.0 / 360 * 2 * PI));
-                   double newY = (getY() + 1 * sin(theta*1.0 / 360 * 2 * PI));
-                   
-                   if (!getWorld()->isBacteriaMovementBlockedAt(newX, newY) && (getWorld()->distance(VIEW_WIDTH/2, VIEW_HEIGHT/2, newX, newY) < VIEW_RADIUS)){
-                       moveTo(newX, newY);
-                       return;
-                   }
-                   
-                   else {
-                       theta+=10;
-                       setDirection(theta);
-                   }
-               }
-               return;
-               
-
-           }
-           }
-
+            
+            for(int i=0; i< 10; i++){
+                setDirection(theta);
+                double newX = (getX() + 1 * cos(theta*1.0 / 360 * 2 * PI));
+                double newY = (getY() + 1 * sin(theta*1.0 / 360 * 2 * PI));
+                
+                if (!getWorld()->isBacteriaMovementBlockedAt(newX, newY) && (getWorld()->distance(VIEW_WIDTH/2, VIEW_HEIGHT/2, newX, newY) < VIEW_RADIUS)){
+                    moveTo(newX, newY);
+                    return;
+                }
+                
+                else {
+                    theta+=10;
+                    setDirection(theta);
+                }
+            }
+            return;
+            
+            
+        }
+    }
+    
     //step 5
     if(getWorld()->getAngleToNearbySocrates(this, 256, theta)){
-       
+        
         for(int i=0; i< 10; i++){
             setDirection(theta);
             double newX = (getX() + 1 * cos(theta*1.0 / 360 * 2 * PI));
@@ -568,7 +568,7 @@ void EColi:: doSomething(){
         }
         return;
         
-
+        
     }
 }
 
@@ -600,22 +600,22 @@ int Salmonella::soundWhenDie() const{
 
 void Salmonella::move(){
     if (m_move>0){
-           m_move--;
-           double newX = (getX() + 3 * cos(getDirection()*1.0 / 360 * 2 * PI));
-           double newY = (getY() + 3 * sin(getDirection()*1.0 / 360 * 2 * PI));
-           if (!getWorld()->isBacteriaMovementBlockedAt(newX, newY) && (getWorld()->distance(VIEW_WIDTH/2, VIEW_HEIGHT/2, newX, newY) < VIEW_RADIUS)){
-               moveTo(newX, newY);
-           }
-           else {
-               int d= randInt(0, 359);
-               setDirection(d);
-               m_move=10;
-           }
+        m_move--;
+        double newX = (getX() + 3 * cos(getDirection()*1.0 / 360 * 2 * PI));
+        double newY = (getY() + 3 * sin(getDirection()*1.0 / 360 * 2 * PI));
+        if (!getWorld()->isBacteriaMovementBlockedAt(newX, newY) && (getWorld()->distance(VIEW_WIDTH/2, VIEW_HEIGHT/2, newX, newY) < VIEW_RADIUS)){
+            moveTo(newX, newY);
+        }
+        else {
+            int d= randInt(0, 359);
+            setDirection(d);
+            m_move=10;
+        }
         return;
     }
     
     else {
-       
+        
         int ang;
         if (getWorld()->getAngleToNearestNearbyEdible(this, 128, ang)) {
             double newX = (getX() + 3 * cos(getDirection()*1.0 / 360 * 2 * PI));
@@ -646,7 +646,7 @@ void Salmonella::move(){
 // REGULAR SALMONELLA FUNCTIONS
 //*************************************
 RegularSalmonella:: RegularSalmonella (double startX, double startY, StudentWorld *w) : Salmonella(startX, startY, 4, w){
-
+    
 }
 
 
@@ -660,17 +660,17 @@ void RegularSalmonella::doSomething() {
     if (p!=nullptr){
         p->takeDamage(-1);
         Salmonella::move();
-          
+        
     }
-  
-   if (Bacteria::helper(x,y)){
-          Bacteria *b = new RegularSalmonella (x, y, getWorld() );
-          getWorld()->addActor(b);
-       Salmonella::move();
-      }
+    
+    if (Bacteria::helper(x,y)){
+        Bacteria *b = new RegularSalmonella (x, y, getWorld() );
+        getWorld()->addActor(b);
+        Salmonella::move();
+    }
     
     Salmonella::move();
-       
+    
 }
 
 
@@ -680,7 +680,7 @@ void RegularSalmonella::doSomething() {
 // AGGRESSIVE SALMONELLA FUNCTIONS
 //*************************************
 AggSalmonella:: AggSalmonella (double startX, double startY, StudentWorld *w): Salmonella(startX, startY, 10, w){
-
+    
 }
 
 void AggSalmonella::doSomething(){
@@ -732,11 +732,11 @@ void AggSalmonella::doSomething(){
     
     
 }
-    
-    
-    
-    
-    
+
+
+
+
+
 
 
 
