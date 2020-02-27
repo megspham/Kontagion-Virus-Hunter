@@ -41,8 +41,7 @@ int StudentWorld::init()
         x= r*x + VIEW_RADIUS;
         y= r*y + VIEW_RADIUS;
         if (!overlap(x, y)){
-             //m_actors.push_back(new Pit(x, y, 5, 3 ,2, this));
-            m_actors.push_back(new Pit(x, y, 0, 0, 1, this));
+             m_actors.push_back(new Pit(x, y, 5, 3 ,2, this));
         }
         else i--;
     }
@@ -164,14 +163,17 @@ int StudentWorld::move()
 
 void StudentWorld::cleanUp()
 {
+  
     if (player!=nullptr) {
         delete player;
+        player=nullptr;
     }
     vector <Actor*> :: iterator it;
     if (!m_actors.empty()){
         for (it=m_actors.begin(); it!= m_actors.end();it++){
             delete *it;
-            it-- = m_actors.erase(it);
+            it = m_actors.erase(it);
+            it--;
         }
     }
 }
@@ -191,11 +193,11 @@ bool StudentWorld::damageOneActor(Actor *a, int damage) {
     int dis=0;
     for (int i=0; i < m_actors.size();){
         dis = distance(a->getX(), a->getY(), m_actors[i]->getX(), m_actors[i]->getY());
-        if (dis <=2*SPRITE_RADIUS && m_actors[i]->takeDamage(-1)){
+        if (dis <=SPRITE_WIDTH  && m_actors[i]->takeDamage(damage)){
             m_actors[i]->takeDamage(damage);
             return true;
         }
-        else i++;
+               else i++;
         
     }
     return false;

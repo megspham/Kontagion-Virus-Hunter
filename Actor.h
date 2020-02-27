@@ -82,20 +82,21 @@ public:
     
 private:
     int m_maxDis;
+    int m_damage;
 };
 
 class Spray : public Projectile
 {
 public:
     Spray(double x, double y, Direction dir, StudentWorld *w);
-    //virtual void doSomething();
+   // virtual void doSomething();
 };
 
 class Flame : public Projectile
 {
 public:
     Flame(double x, double y, Direction dir, StudentWorld *w);
-    //virtual void doSomething();
+   // virtual void doSomething();
 };
 
 class Goodie : public Actor
@@ -202,7 +203,7 @@ private:
 class EColi : public Bacteria
 {
 public:
-    EColi(double x, double y, StudentWorld *w);
+    EColi(double startX, double startY, StudentWorld *w);
     virtual void doSomething();
     virtual int soundWhenHurt() const;
     virtual int soundWhenDie() const;

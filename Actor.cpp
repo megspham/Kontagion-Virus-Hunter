@@ -108,7 +108,7 @@ Pit :: Pit (double startX, double startY, int regsal, int aggsal, int ecoli, Stu
 
 void Pit :: doSomething(){
     if (m_regsal==0 && m_aggsal==0 && m_ecoli==0){
-        //inform student world objext that it has emitted all bacteria
+        //inform student world object that it has emitted all bacteria
         setDead();
     }
     else {
@@ -154,6 +154,7 @@ bool Pit:: preventsLevelCompleting() const {
 //*************************************
 Projectile:: Projectile (int imageID, double startX, double startY, Direction dir, int maxDis, int damage, StudentWorld *w): Actor(imageID, startX, startY, dir, 1, w){
     m_maxDis= maxDis;
+    m_damage = damage;
 }
 
 void Projectile:: doSomething (){
@@ -162,10 +163,11 @@ void Projectile:: doSomething (){
         return;
 
     if (m_maxDis>0){
-        moveForward(2*SPRITE_RADIUS);
-        m_maxDis-=2*SPRITE_RADIUS;
+        moveForward(SPRITE_WIDTH);
+        m_maxDis-=SPRITE_WIDTH;
         if (getWorld()->damageOneActor(this, -1)) {
-          
+            setDead();
+            return;
         }
 
     }
@@ -181,7 +183,7 @@ void Projectile:: doSomething (){
 //*************************************
 // SPRAY FUNCTIONS
 //*************************************
-Spray:: Spray (double startX, double startY, Direction dir, StudentWorld *w) : Projectile(IID_SPRAY, startX, startY, dir, 112, 2,  w) {
+Spray:: Spray (double startX, double startY, Direction dir, StudentWorld *w) : Projectile(IID_SPRAY, startX, startY, dir, 112, -2,  w) {
     
 }
 
@@ -191,7 +193,7 @@ Spray:: Spray (double startX, double startY, Direction dir, StudentWorld *w) : P
 //*************************************
 // FLAMES FUNCTIONS
 //*************************************
-Flame:: Flame (double startX, double startY, Direction dir, StudentWorld *w): Projectile(IID_FLAME, startX, startY, dir, 32, 5, w){
+Flame:: Flame (double startX, double startY, Direction dir, StudentWorld *w): Projectile(IID_FLAME, startX, startY, dir, 32, -5, w){
     
 }
 
@@ -218,7 +220,6 @@ Goodie:: Goodie (int imageID, double startX, double startY, int lifetime, Studen
      Socrates *s =getWorld()->getOverlappingSocrates(this);
      if (s!=nullptr){
          pickUp(s);
-         getWorld()->playSound(SOUND_GOT_GOODIE);
          return;
      }
      if (m_lifetime==0) setDead();
@@ -236,6 +237,7 @@ void RestoreHealthGoodie::pickUp(Socrates *s){
     getWorld()->increaseScore(250);
     setDead();
     s->restoreHealth();
+    getWorld()->playSound(SOUND_GOT_GOODIE);
 }
 
 
@@ -252,7 +254,7 @@ void FlamethrowerGoodie::pickUp(Socrates *s){
     getWorld()->increaseScore(300);
     setDead();
     s->addFlames();
-    
+    getWorld()->playSound(SOUND_GOT_GOODIE);
 }
 
 
@@ -271,7 +273,7 @@ void ExtraLifeGoodie::pickUp(Socrates *s){
     getWorld()->increaseScore(500);
     setDead();
     getWorld()->incLives();
-    
+    getWorld()->playSound(SOUND_GOT_GOODIE);
 }
 
 
@@ -289,9 +291,7 @@ Fungus::Fungus (double startX, double startY,  int lifetime, StudentWorld *w): G
 void Fungus::pickUp(Socrates *s){
     getWorld()->increaseScore(-50);
     setDead();
-    s->takeDamage(-50);
-    
-
+    s->takeDamage(-20);
 }
 
 
@@ -304,11 +304,12 @@ Agent:: Agent (int imageID, double startX, double startY, int hp, Direction dir,
 }
 
 bool Agent::takeDamage(int damage){
-        m_hp+=damage;
-    getWorld()->playSound(SOUND_PLAYER_HURT);
+    m_hp+=damage;
+    getWorld()->playSound(soundWhenHurt());
+    
     if (m_hp==0) {
         setDead();
-        getWorld()->playSound(SOUND_PLAYER_DIE);
+        getWorld()->playSound(soundWhenDie());
     }
         return true;
    
@@ -346,12 +347,12 @@ void Socrates:: doSomething (){
     if (getWorld()->getKey(ch)){
         switch (ch) {
             case KEY_PRESS_LEFT:
-                moveTo(VIEW_RADIUS+VIEW_RADIUS*cos((getDirection()+180+5)*(PI/180)), VIEW_RADIUS+VIEW_RADIUS*sin((getDirection()+180+5)*(PI/180)));
+            case 'a': moveTo(VIEW_RADIUS+VIEW_RADIUS*cos((getDirection()+180+5)*(PI/180)), VIEW_RADIUS+VIEW_RADIUS*sin((getDirection()+180+5)*(PI/180)));
                 setDirection(getDirection()+5);
                 break;
                 
             case KEY_PRESS_RIGHT:
-                moveTo(VIEW_RADIUS+VIEW_RADIUS*cos((getDirection()+180-5)*(PI/180)), VIEW_RADIUS+VIEW_RADIUS*sin((getDirection()+180-5)*(PI/180)));
+            case 'd':    moveTo(VIEW_RADIUS+VIEW_RADIUS*cos((getDirection()+180-5)*(PI/180)), VIEW_RADIUS+VIEW_RADIUS*sin((getDirection()+180-5)*(PI/180)));
                 setDirection(getDirection()-5);
                 
                 break;
@@ -427,8 +428,8 @@ Bacteria:: Bacteria (int imageID, double startX, double startY, int move, int hp
 
 bool Bacteria:: takeDamage(int damage){
     m_hp+=damage;
-
     getWorld()->playSound(soundWhenHurt());
+    
     if (m_hp==0) {
         setDead();
         getWorld()->playSound(soundWhenDie());
@@ -460,7 +461,6 @@ bool Bacteria::helper(int &x, int &y){
     if (a!=nullptr){
         a->setDead();
         m_foodCount++;
-        std::cout<<m_foodCount<<std::endl;
     }
     
     if (m_foodCount==3){
@@ -470,9 +470,9 @@ bool Bacteria::helper(int &x, int &y){
         if (getX()>VIEW_WIDTH/2)
             x+=SPRITE_WIDTH/2;
         y = getY();
-        if (getY()<VIEW_WIDTH/2)
+        if (getY()<VIEW_HEIGHT/2)
             y+=SPRITE_WIDTH/2;
-        if (getX()>VIEW_WIDTH/2)
+        if (getY()>VIEW_HEIGHT/2)
             y+=SPRITE_WIDTH/2;
         m_foodCount=0;
         return true;
@@ -483,7 +483,7 @@ bool Bacteria::helper(int &x, int &y){
 //*************************************
 // E. COLI FUNCTIONS
 //*************************************
-EColi:: EColi (double startX, double startY, StudentWorld*w): Bacteria(IID_ECOLI, startX, startY, 0, 5, w){
+EColi:: EColi (double startX, double startY, StudentWorld *w): Bacteria(IID_ECOLI, startX, startY, 0, 5, w) {
 
 }
 
@@ -492,19 +492,63 @@ void EColi:: doSomething(){
     
     if (!isAlive())
           return;
-
+    
+    //step 2
       Socrates *p = getWorld()->getOverlappingSocrates(this);
       if (p!=nullptr){
           p->takeDamage(-4);
+          if(getWorld()->getAngleToNearbySocrates(this, 256, theta)){
+                
+                 for(int i=0; i< 10; i++){
+                     setDirection(theta);
+                     double newX = (getX() + 1 * cos(theta*1.0 / 360 * 2 * PI));
+                     double newY = (getY() + 1 * sin(theta*1.0 / 360 * 2 * PI));
+                     
+                     if (!getWorld()->isBacteriaMovementBlockedAt(newX, newY) && (getWorld()->distance(VIEW_WIDTH/2, VIEW_HEIGHT/2, newX, newY) < VIEW_RADIUS)){
+                         moveTo(newX, newY);
+                         return;
+                     }
+                     
+                     else {
+                         theta+=10;
+                         setDirection(theta);
+                     }
+                 }
+                 return;
+                 
+
+             }
       }
     
-      if (Bacteria::helper(x,y)){
-               Bacteria *b = new EColi (x, y, getWorld() );
+    //step 3
+    if (Bacteria::helper(x,y)){
+        Bacteria *b = new EColi (x, y, getWorld() );
                getWorld()->addActor(b);
+        
+        if(getWorld()->getAngleToNearbySocrates(this, 256, theta)){
+              
+               for(int i=0; i< 10; i++){
+                   setDirection(theta);
+                   double newX = (getX() + 1 * cos(theta*1.0 / 360 * 2 * PI));
+                   double newY = (getY() + 1 * sin(theta*1.0 / 360 * 2 * PI));
+                   
+                   if (!getWorld()->isBacteriaMovementBlockedAt(newX, newY) && (getWorld()->distance(VIEW_WIDTH/2, VIEW_HEIGHT/2, newX, newY) < VIEW_RADIUS)){
+                       moveTo(newX, newY);
+                       return;
+                   }
+                   
+                   else {
+                       theta+=10;
+                       setDirection(theta);
+                   }
+               }
+               return;
+               
+
+           }
            }
 
     //step 5
-    // int ang =0;
     if(getWorld()->getAngleToNearbySocrates(this, 256, theta)){
        
         for(int i=0; i< 10; i++){
@@ -567,26 +611,32 @@ void Salmonella::move(){
                setDirection(d);
                m_move=10;
            }
-           return;
-       }
-       else {
-           double newX = (getX() + 3 * cos(getDirection()*1.0 / 360 * 2 * PI));
-                  double newY = (getY() + 3 * sin(getDirection()*1.0 / 360 * 2 * PI));
-           int ang;
-           if (getWorld()->getAngleToNearestNearbyEdible(this, 128, ang))
-               setDirection(ang);
-           if (getWorld()->isBacteriaMovementBlockedAt(newX, newY) && (getWorld()->distance(VIEW_WIDTH/2, VIEW_HEIGHT/2, newX, newY) < VIEW_RADIUS)){
-               setDirection(randInt(0, 359));
-               m_move=10;
-               return;
-           }
-           else {
-               setDirection(randInt(0, 359));
-               m_move=10;
-               return;
-           }
-       }
+        return;
+    }
+    
+    else {
        
+        int ang;
+        if (getWorld()->getAngleToNearestNearbyEdible(this, 128, ang)) {
+            double newX = (getX() + 3 * cos(getDirection()*1.0 / 360 * 2 * PI));
+            double newY = (getY() + 3 * sin(getDirection()*1.0 / 360 * 2 * PI));
+            setDirection(ang);
+            if (!getWorld()->isBacteriaMovementBlockedAt(newX, newY) && (getWorld()->distance(VIEW_WIDTH/2, VIEW_HEIGHT/2, newX, newY) < VIEW_RADIUS)){
+                moveTo(newX, newY);
+            }
+            else{
+                setDirection(randInt(0, 359));
+                m_move=10;
+                return;
+            }
+        }
+        else {
+            setDirection(randInt(0, 359));
+            m_move=10;
+            return;
+        }
+    }
+    
     
 }
 
@@ -621,7 +671,6 @@ void RegularSalmonella::doSomething() {
     
     Salmonella::move();
        
-      
 }
 
 
