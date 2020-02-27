@@ -193,7 +193,7 @@ bool StudentWorld::damageOneActor(Actor *a, int damage) {
     int dis=0;
     for (int i=0; i < m_actors.size();){
         dis = distance(a->getX(), a->getY(), m_actors[i]->getX(), m_actors[i]->getY());
-        if (dis <=SPRITE_WIDTH  && m_actors[i]->takeDamage(damage)){
+        if (dis <=SPRITE_WIDTH && m_actors[i]->takeDamage(damage) ){
             m_actors[i]->takeDamage(damage);
             return true;
         }

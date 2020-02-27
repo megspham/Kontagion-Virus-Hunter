@@ -165,7 +165,7 @@ void Projectile:: doSomething (){
     if (m_maxDis>0){
         moveForward(SPRITE_WIDTH);
         m_maxDis-=SPRITE_WIDTH;
-        if (getWorld()->damageOneActor(this, -1)) {
+        if (getWorld()->damageOneActor(this, m_damage)) {
             setDead();
             return;
         }
@@ -307,7 +307,7 @@ bool Agent::takeDamage(int damage){
     m_hp+=damage;
     getWorld()->playSound(soundWhenHurt());
     
-    if (m_hp==0) {
+    if (m_hp<=0) {
         setDead();
         getWorld()->playSound(soundWhenDie());
     }
@@ -427,10 +427,11 @@ Bacteria:: Bacteria (int imageID, double startX, double startY, int move, int hp
 
 
 bool Bacteria:: takeDamage(int damage){
+    
     m_hp+=damage;
     getWorld()->playSound(soundWhenHurt());
     
-    if (m_hp==0) {
+    if (m_hp<=0) {
         setDead();
         getWorld()->playSound(soundWhenDie());
         getWorld()->increaseScore(100);
