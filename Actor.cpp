@@ -445,6 +445,8 @@ bool Bacteria:: takeDamage(int damage){
 }
 
 bool Bacteria::preventsLevelCompleting() const {
+    if (!isAlive())
+        return false;
     return true;
 }
 

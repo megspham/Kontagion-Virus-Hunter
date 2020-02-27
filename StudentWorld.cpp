@@ -84,7 +84,7 @@ int StudentWorld::init()
 
 int StudentWorld::move()
 {
-       
+    bool finishlevel= true;
     //if player is dead decrease lives
     if (!player->isAlive()) {
         decLives();
@@ -92,19 +92,26 @@ int StudentWorld::move()
       }
     
     
-    //if all bacteria is dead and all pits have disappeared then nEXT LEVEL
-    
-    
+  
        player->doSomething();
      if (!m_actors.empty()){
          for (int i=0; i!=m_actors.size();){
              m_actors[i]->doSomething();
+             
+             if (m_actors[i]->preventsLevelCompleting())
+                finishlevel=false;
+             
              if (!m_actors[i]->isAlive())
                  kill(m_actors[i]);
+           
              else i++;
          }
      }
-       
+    
+      //if all bacteria is dead and all pits have disappeared then nEXT LEVEL
+    if (finishlevel)
+        return GWSTATUS_FINISHED_LEVEL;
+   
        double x,y;
        double ChanceFungus = randInt (0, max(510-getLevel()*10, 200));
        if (ChanceFungus==0){
@@ -133,6 +140,9 @@ int StudentWorld::move()
            }
        }
        
+    
+    
+    
  //set game text at the top of the window
   ostringstream oss;
     string str;
@@ -148,6 +158,7 @@ int StudentWorld::move()
        return GWSTATUS_CONTINUE_GAME;
     
     
+          
   
 }
 
