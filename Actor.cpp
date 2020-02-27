@@ -131,7 +131,7 @@ void Pit :: doSomething(){
             }
             if (bacChance==3 && m_ecoli!=0){
                 //add ecoli
-                Actor *e = new EColi(getX(), getY(), 5, getWorld());
+                Actor *e = new EColi(getX(), getY(), getWorld());
                 getWorld()->addActor(e);
                 m_ecoli--;
                 getWorld()->playSound(SOUND_BACTERIUM_BORN);
@@ -433,87 +433,78 @@ int Bacteria::getFoodCount () const{
     return m_foodCount;
 }
 
-//void Bacteria::doSomething(){
-//
-//}
+bool Bacteria::helper(int &x, int &y){
+    
+    Actor *a = getWorld()->getOverlappingEdible(this);
+    if (a!=nullptr){
+        a->setDead();
+        m_foodCount++;
+        std::cout<<m_foodCount<<std::endl;
+    }
+    
+    if (m_foodCount==3){
+        x = getX();
+        if (getX()<VIEW_WIDTH/2)
+            x+=SPRITE_WIDTH/2;
+        if (getX()>VIEW_WIDTH/2)
+            x+=SPRITE_WIDTH/2;
+        y = getY();
+        if (getY()<VIEW_WIDTH/2)
+            y+=SPRITE_WIDTH/2;
+        if (getX()>VIEW_WIDTH/2)
+            y+=SPRITE_WIDTH/2;
+        m_foodCount=0;
+        return true;
+    }
+    return false;
+}
 
 //*************************************
 // E. COLI FUNCTIONS
 //*************************************
-EColi:: EColi (double startX, double startY, int hp, StudentWorld*w): Bacteria(IID_ECOLI, startX, startY, 0, hp, w){
-    m_foodCount=0;
+EColi:: EColi (double startX, double startY, StudentWorld*w): Bacteria(IID_ECOLI, startX, startY, 0, 5, w){
+
 }
 
 void EColi:: doSomething(){
+    int x,y;
+    
     if (!isAlive())
           return;
-//
-//      Socrates *p = getWorld()->getOverlappingSocrates(this);
-//      if (p!=nullptr){
-//          p->takeDamage(-4);
-//      }
-//
-//
-//    if(getWorld()->getAngleToNearbySocrates(this, 256, theta)){
-//        //setDirection(theta);
-//        for (int i=0; i<10;i++){
-//            setDirection(theta);
-//            double newX = (getX() + 3 * cos(getDirection()*1.0 / 360 * 2 * PI));
-//            double newY = (getY() + 3 * sin(getDirection()*1.0 / 360 * 2 * PI));
-//            if (!getWorld()->isBacteriaMovementBlockedAt(newX, newY) && (getWorld()->distance(VIEW_WIDTH/2, VIEW_HEIGHT/2, newX, newY) < VIEW_RADIUS)){
-//                moveTo(newX, newY);
-//                return;
-//            }
-//            else {
-//                theta*=10;
-//            }
-//        }
-//    }
-    
-//
-//      if (m_foodCount==3){
-//             double newX = getX();
-//             if (getX()<VIEW_WIDTH/2)
-//                 newX+=SPRITE_WIDTH/2;
-//             if (getX()>VIEW_WIDTH/2)
-//                 newX+=SPRITE_WIDTH/2;
-//             double newY = getY();
-//             if (getY()<VIEW_WIDTH/2)
-//                 newY+=SPRITE_WIDTH/2;
-//             if (getX()>VIEW_WIDTH/2)
-//                 newY+=SPRITE_WIDTH/2;
-//             Bacteria *b = new RegularSalmonella (newX, newY, getWorld() );
-//             getWorld()->addActor(b);
-//             m_foodCount=0;
-//         }
-//         Actor *a = getWorld()->getOverlappingEdible(this);
-//         if (a!=nullptr){
-//             a->setDead();
-//             m_foodCount++;
-//             std::cout<<m_foodCount<<std::endl;
-//         }
 
+      Socrates *p = getWorld()->getOverlappingSocrates(this);
+      if (p!=nullptr){
+          p->takeDamage(-4);
+      }
     
-    
-    //step 5
-   // int ang =0;
-       if(getWorld()->getAngleToNearbySocrates(this, 256, theta)){
-           int i=0;
-          while (i<10){
-               std::cout<<i<<std::endl;
-               setDirection(theta);
-               double newX = (getX() + 2 * cos(getDirection()*1.0 / 360 * 2 * PI));
-               double newY = (getY() + 2 * sin(getDirection()*1.0 / 360 * 2 * PI));
-               if (!getWorld()->isBacteriaMovementBlockedAt(newX, newY) && (getWorld()->distance(VIEW_WIDTH/2, VIEW_HEIGHT/2, newX, newY) < VIEW_RADIUS)){
-                   moveTo(newX, newY);
-                   return;
-               }
-//               else {
-//                   theta*=10;
-//               }
-              i++;
+      if (Bacteria::helper(x,y)){
+               Bacteria *b = new EColi (x, y, getWorld() );
+               getWorld()->addActor(b);
            }
-       }
+
+    //step 5
+    // int ang =0;
+    if(getWorld()->getAngleToNearbySocrates(this, 256, theta)){
+       
+        for(int i=0; i< 10; i++){
+            setDirection(theta);
+            double newX = (getX() + 1 * cos(theta*1.0 / 360 * 2 * PI));
+            double newY = (getY() + 1 * sin(theta*1.0 / 360 * 2 * PI));
+            
+            if (!getWorld()->isBacteriaMovementBlockedAt(newX, newY) && (getWorld()->distance(VIEW_WIDTH/2, VIEW_HEIGHT/2, newX, newY) < VIEW_RADIUS)){
+                moveTo(newX, newY);
+                return;
+            }
+            
+            else {
+                theta+=10;
+                setDirection(theta);
+            }
+        }
+        return;
+        
+
+    }
 }
 
 int EColi::soundWhenHurt() const{
@@ -530,7 +521,7 @@ int EColi::soundWhenDie() const{
 // SALMONELLA FUNCTIONS
 //*************************************
 Salmonella:: Salmonella (double startX, double startY, int hp,  StudentWorld*w): Bacteria(IID_SALMONELLA, startX, startY, 0, hp, w){
-    
+    m_move=0;
 }
 
 int Salmonella::soundWhenHurt() const{
@@ -542,6 +533,41 @@ int Salmonella::soundWhenDie() const{
     return SOUND_SALMONELLA_DIE;
 }
 
+void Salmonella::move(){
+    if (m_move>0){
+           m_move--;
+           double newX = (getX() + 3 * cos(getDirection()*1.0 / 360 * 2 * PI));
+           double newY = (getY() + 3 * sin(getDirection()*1.0 / 360 * 2 * PI));
+           if (!getWorld()->isBacteriaMovementBlockedAt(newX, newY) && (getWorld()->distance(VIEW_WIDTH/2, VIEW_HEIGHT/2, newX, newY) < VIEW_RADIUS)){
+               moveTo(newX, newY);
+           }
+           else {
+               int d= randInt(0, 359);
+               setDirection(d);
+               m_move=10;
+           }
+           return;
+       }
+       else {
+           double newX = (getX() + 3 * cos(getDirection()*1.0 / 360 * 2 * PI));
+                  double newY = (getY() + 3 * sin(getDirection()*1.0 / 360 * 2 * PI));
+           int ang;
+           if (getWorld()->getAngleToNearestNearbyEdible(this, 128, ang))
+               setDirection(ang);
+           if (getWorld()->isBacteriaMovementBlockedAt(newX, newY) && (getWorld()->distance(VIEW_WIDTH/2, VIEW_HEIGHT/2, newX, newY) < VIEW_RADIUS)){
+               setDirection(randInt(0, 359));
+               m_move=10;
+               return;
+           }
+           else {
+               setDirection(randInt(0, 359));
+               m_move=10;
+               return;
+           }
+       }
+       
+    
+}
 
 
 
@@ -549,75 +575,31 @@ int Salmonella::soundWhenDie() const{
 // REGULAR SALMONELLA FUNCTIONS
 //*************************************
 RegularSalmonella:: RegularSalmonella (double startX, double startY, StudentWorld *w) : Salmonella(startX, startY, 4, w){
-    m_foodCount=0;
-    m_move=0;
+
 }
 
 
 void RegularSalmonella::doSomething() {
+    int x,y;
+    
     if (!isAlive())
         return;
     
     Socrates *p = getWorld()->getOverlappingSocrates(this);
     if (p!=nullptr){
         p->takeDamage(-1);
+        Salmonella::move();
+          
     }
-    
-   if (m_foodCount==3){
-          double newX = getX();
-          if (getX()<VIEW_WIDTH/2)
-              newX+=SPRITE_WIDTH/2;
-          if (getX()>VIEW_WIDTH/2)
-              newX+=SPRITE_WIDTH/2;
-          double newY = getY();
-          if (getY()<VIEW_WIDTH/2)
-              newY+=SPRITE_WIDTH/2;
-          if (getX()>VIEW_WIDTH/2)
-              newY+=SPRITE_WIDTH/2;
-          Bacteria *b = new RegularSalmonella (newX, newY, getWorld() );
+  
+   if (Bacteria::helper(x,y)){
+          Bacteria *b = new RegularSalmonella (x, y, getWorld() );
           getWorld()->addActor(b);
-          m_foodCount=0;
+       Salmonella::move();
       }
-      Actor *a = getWorld()->getOverlappingEdible(this);
-      if (a!=nullptr){
-          a->setDead();
-          m_foodCount++;
-          std::cout<<m_foodCount<<std::endl;
-      }
-
-
-    if (m_move>0){
-        m_move--;
-        double newX = (getX() + 3 * cos(getDirection()*1.0 / 360 * 2 * PI));
-        double newY = (getY() + 3 * sin(getDirection()*1.0 / 360 * 2 * PI));
-        if (!getWorld()->isBacteriaMovementBlockedAt(newX, newY) && (getWorld()->distance(VIEW_WIDTH/2, VIEW_HEIGHT/2, newX, newY) < VIEW_RADIUS)){
-            moveTo(newX, newY);
-        }
-        else {
-            int d= randInt(0, 359);
-            setDirection(d);
-            m_move=10;
-        }
-        return;
-    }
-    else {
-        double newX = (getX() + 3 * cos(getDirection()*1.0 / 360 * 2 * PI));
-               double newY = (getY() + 3 * sin(getDirection()*1.0 / 360 * 2 * PI));
-        int ang;
-        if (getWorld()->getAngleToNearestNearbyEdible(this, 128, ang))
-            setDirection(ang);
-        if (getWorld()->isBacteriaMovementBlockedAt(newX, newY) && (getWorld()->distance(VIEW_WIDTH/2, VIEW_HEIGHT/2, newX, newY) < VIEW_RADIUS)){
-            setDirection(randInt(0, 359));
-            m_move=10;
-            return;
-        }
-        else {
-            setDirection(randInt(0, 359));
-            m_move=10;
-            return;
-        }
-    }
-        
+    
+    Salmonella::move();
+       
       
 }
 
@@ -628,109 +610,58 @@ void RegularSalmonella::doSomething() {
 // AGGRESSIVE SALMONELLA FUNCTIONS
 //*************************************
 AggSalmonella:: AggSalmonella (double startX, double startY, StudentWorld *w): Salmonella(startX, startY, 10, w){
-    m_move =0;
-    m_foodCount=0;
+
 }
 
 void AggSalmonella::doSomething(){
+    int x,y =0;
     
+    //step 1
     if (!isAlive())
         return;
+    
+    //step 2
     int ang=0;
     if (getWorld()->getAngleToNearbySocrates(this, 72, ang)){
         setDirection(ang);
+        double newX = (getX() + 3 * cos(ang*1.0 / 360 * 2 * PI));
+        double newY = (getY() + 3 * sin(ang*1.0 / 360 * 2 * PI));
+        if (!getWorld()->isBacteriaMovementBlockedAt(newX, newY) && (getWorld()->distance(VIEW_WIDTH/2, VIEW_HEIGHT/2, newX, newY) < VIEW_RADIUS)){
+            moveTo(newX, newY);
+        }
         
         Socrates *p = getWorld()->getOverlappingSocrates(this);
         if (p!=nullptr){
             p->takeDamage(-2);
         }
-        if (m_foodCount==3){
-            double newX = getX();
-            if (getX()<VIEW_WIDTH/2)
-                newX+=SPRITE_WIDTH/2;
-            if (getX()>VIEW_WIDTH/2)
-                newX+=SPRITE_WIDTH/2;
-            double newY = getY();
-            if (getY()<VIEW_WIDTH/2)
-                newY+=SPRITE_WIDTH/2;
-            if (getX()>VIEW_WIDTH/2)
-                newY+=SPRITE_WIDTH/2;
-            Bacteria *b = new AggSalmonella (newX, newY, getWorld() );
+        
+        
+        if (Bacteria::helper(x,y)){
+            Bacteria *b = new AggSalmonella (x, y, getWorld() );
             getWorld()->addActor(b);
-            m_foodCount=0;
         }
-        Actor *a = getWorld()->getOverlappingEdible(this);
-        if (a!=nullptr){
-            a->setDead();
-            m_foodCount++;
-            std::cout<<m_foodCount<<std::endl;
-        }
+        return;
     }
     
-    //step 4
+    //step 3
     Socrates *p = getWorld()->getOverlappingSocrates(this);
     if (p!=nullptr){
         p->takeDamage(-2);
+        Salmonella::move();
     }
     
-    //step 5
-    if (m_foodCount==3){
-        double newX = getX();
-        if (getX()<VIEW_WIDTH/2)
-            newX+=SPRITE_WIDTH/2;
-        if (getX()>VIEW_WIDTH/2)
-            newX+=SPRITE_WIDTH/2;
-        double newY = getY();
-        if (getY()<VIEW_WIDTH/2)
-            newY+=SPRITE_WIDTH/2;
-        if (getX()>VIEW_WIDTH/2)
-            newY+=SPRITE_WIDTH/2;
-        Bacteria *b = new AggSalmonella (newX, newY, getWorld() );
+    //step 4 & 5
+    if (Bacteria::helper(x,y)){
+        Bacteria *b = new AggSalmonella (x, y, getWorld() );
         getWorld()->addActor(b);
-        m_foodCount=0;
-    }
-    Actor *a = getWorld()->getOverlappingEdible(this);
-    if (a!=nullptr){
-        a->setDead();
-        m_foodCount++;
-        std::cout<<m_foodCount<<std::endl;
+        Salmonella::move();
     }
     
     //step 6
-        if (m_move>0){
-            m_move--;
-            double newX = (getX() + 3 * cos(getDirection()*1.0 / 360 * 2 * PI));
-            double newY = (getY() + 3 * sin(getDirection()*1.0 / 360 * 2 * PI));
-            if (!getWorld()->isBacteriaMovementBlockedAt(newX, newY) && (getWorld()->distance(VIEW_WIDTH/2, VIEW_HEIGHT/2, newX, newY) < VIEW_RADIUS)){
-                moveTo(newX, newY);
-            }
-            else {
-                int d= randInt(0, 359);
-                setDirection(d);
-                m_move=10;
-            }
-            return;
-        }
-        else {
-            double newX = (getX() + 3 * cos(getDirection()*1.0 / 360 * 2 * PI));
-            double newY = (getY() + 3 * sin(getDirection()*1.0 / 360 * 2 * PI));
-            int ang;
-            if (getWorld()->getAngleToNearestNearbyEdible(this, 128, ang))
-                setDirection(ang);
-            if (getWorld()->isBacteriaMovementBlockedAt(newX, newY) && (getWorld()->distance(VIEW_WIDTH/2, VIEW_HEIGHT/2, newX, newY) < VIEW_RADIUS)){
-                setDirection(randInt(0, 359));
-                m_move=10;
-                return;
-            }
-            else {
-                setDirection(randInt(0, 359));
-                m_move=10;
-                return;
-            }
-        }
-        
-        
-    }
+    Salmonella::move();
+    
+    
+}
     
     
     

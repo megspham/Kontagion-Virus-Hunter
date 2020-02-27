@@ -191,6 +191,7 @@ public:
     virtual bool preventsLevelCompleting() const;
     int getFoodCount() const;
     
+    bool helper(int &x, int &y);
     
 private:
     int m_hp;
@@ -201,12 +202,11 @@ private:
 class EColi : public Bacteria
 {
 public:
-    EColi(double x, double y, int hp, StudentWorld *w);
+    EColi(double x, double y, StudentWorld *w);
     virtual void doSomething();
     virtual int soundWhenHurt() const;
     virtual int soundWhenDie() const;
 private:
-    int m_foodCount;
     int theta;
 };
 
@@ -216,6 +216,9 @@ public:
     Salmonella(double x, double y, int hitPoints, StudentWorld *w);
     virtual int soundWhenHurt() const;
     virtual int soundWhenDie() const;
+    void move();
+private:
+    int m_move;
 };
 
 class RegularSalmonella : public Salmonella
@@ -223,9 +226,7 @@ class RegularSalmonella : public Salmonella
 public:
     RegularSalmonella( double x, double y, StudentWorld* w);
     virtual void doSomething();
-private:
-    int m_foodCount;
-    int m_move;
+
 };
 
 
@@ -234,9 +235,7 @@ class AggSalmonella : public Salmonella
 public:
     AggSalmonella(double x, double y, StudentWorld* w);
     virtual void doSomething();
-private:
-    int m_foodCount;
-    int m_move; 
+
 };
 
 

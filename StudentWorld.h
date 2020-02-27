@@ -28,7 +28,8 @@ public:
 
       // Is bacterium a blocked from moving to the indicated location?
 //    bool isBacteriaMovementBlockedAt(Actor* a, double x, double y) const;
-
+    bool isBacteriaMovementBlockedAt (double x, double y);
+    
       // If actor a overlaps this world's socrates, return a pointer to the
       // socrates; otherwise, return nullptr
     Socrates* getOverlappingSocrates(Actor* a) const;
@@ -55,8 +56,6 @@ public:
     double distance (double x1, double y1, double x2, double y2) const;
     
     bool overlap (double x, double y);
-    
-    bool isBacteriaMovementBlockedAt (double x, double y);
     
     void kill (Actor *a);
     

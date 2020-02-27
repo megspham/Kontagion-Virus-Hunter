@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <math.h>
 
 using namespace std;
 
@@ -137,7 +138,10 @@ int StudentWorld::move()
 
 void StudentWorld::cleanUp()
 {
-    delete player;
+    if (player!=nullptr) {
+        player = nullptr;
+        delete player;
+    }
     vector <Actor*> :: iterator it;
     if (!m_actors.empty()){
         for (it=m_actors.begin(); it!= m_actors.end();it++){
@@ -172,18 +176,6 @@ bool StudentWorld::damageOneActor(Actor *a, int damage) {
     return false;
 }
 
-
-//bool StudentWorld:: isBacteriaMovementBlockedAt(Actor* a, double x, double y) const {
-//    int dis=0;
-//    for (int i=0; i < m_actors.size();){
-//        dis = distance(a->getX(), a->getY(), m_actors[i]->getX(), m_actors[i]->getY());
-//        if (dis <=SPRITE_RADIUS && m_actors[i]->canBlock()){
-//            return true;
-//        }
-//        else i++;
-//    }
-//    return false;
-//}
 
 bool StudentWorld::isBacteriaMovementBlockedAt (double x, double y) {
     int dis=0;
@@ -225,17 +217,15 @@ Actor* StudentWorld:: getOverlappingEdible(Actor *a) const{
 
 
 bool StudentWorld::getAngleToNearbySocrates(Actor *a, int dist, int& angle) const {
+    
     int dis=0;
-    for (int i=0; i < m_actors.size();){
-           dis = distance(player->getX(), player->getY(), m_actors[i]->getX(), m_actors[i]->getY());
-           if (dis <=dist && m_actors[i]->isEdible()){
-               angle = atan2(a->getY(), a->getX());
-               return true;
-           }
-           else i++;
-           
-       }
-       return false;
+    dis = distance(a->getX(), a->getY(), player->getX(), player->getY());
+    if (dis <=dist){
+        angle = atan2(player->getY()-a->getY(), player->getX()-a->getX()) *(180/PI);
+        return true;
+    }
+    
+    return false;
 }
 
 
@@ -245,7 +235,7 @@ bool StudentWorld::getAngleToNearestNearbyEdible(Actor *a, int dist, int &angle)
     for (int i=0; i < m_actors.size();){
          dis = distance(a->getX(), a->getY(), m_actors[i]->getX(), m_actors[i]->getY());
          if (dis <=dist && m_actors[i]->isEdible()){
-             angle = atan2(a->getY(), a->getX());
+             angle = atan2(m_actors[i]->getY()-a->getY(), m_actors[i]->getX()-a->getX()) * (180/PI);
              return true;
          }
          else i++;
