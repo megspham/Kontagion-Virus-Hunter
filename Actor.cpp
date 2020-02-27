@@ -142,6 +142,8 @@ void Pit :: doSomething(){
 }
 
 bool Pit:: preventsLevelCompleting() const {
+    if (m_regsal ==0 && m_aggsal==0 && m_ecoli ==0)
+        return false;
     return true;
 }
 
@@ -162,8 +164,8 @@ void Projectile:: doSomething (){
     if (m_maxDis>0){
         moveForward(2*SPRITE_RADIUS);
         m_maxDis-=2*SPRITE_RADIUS;
-        if (getWorld()->damageOneActor(this, 1)) {
-            setDead();
+        if (getWorld()->damageOneActor(this, -1)) {
+          
         }
 
     }
@@ -303,6 +305,11 @@ Agent:: Agent (int imageID, double startX, double startY, int hp, Direction dir,
 
 bool Agent::takeDamage(int damage){
         m_hp+=damage;
+    getWorld()->playSound(SOUND_PLAYER_HURT);
+    if (m_hp==0) {
+        setDead();
+        getWorld()->playSound(SOUND_PLAYER_DIE);
+    }
         return true;
    
 }
@@ -420,7 +427,19 @@ Bacteria:: Bacteria (int imageID, double startX, double startY, int move, int hp
 
 bool Bacteria:: takeDamage(int damage){
     m_hp+=damage;
-    if (m_hp==0) setDead();
+
+    getWorld()->playSound(soundWhenHurt());
+    if (m_hp==0) {
+        setDead();
+        getWorld()->playSound(soundWhenDie());
+        getWorld()->increaseScore(100);
+        int r = randInt(1, 2);
+        if (r==1){
+            Food *f = new Food(getX(), getY(), getWorld());
+            getWorld()->addActor(f);
+        }
+    }
+    
     return true;
     
 }

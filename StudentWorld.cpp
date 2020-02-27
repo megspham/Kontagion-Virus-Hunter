@@ -26,13 +26,14 @@ StudentWorld::StudentWorld(string assetPath)
 
 int StudentWorld::init()
 {
+
+    //add player
    player = new Socrates(0, VIEW_HEIGHT/2, 20, 5, 100, this);
-    
-    
-    int nOfFood = min(5*getLevel(), 25);
-    int nOfDirt = max(180-20*getLevel(),20);
+
     double r, theta, x, y;
     
+    
+    //add pits
     for (int i=0; i<getLevel();i++ ){
         r = randInt(-(VIEW_HEIGHT/2)+8, (VIEW_HEIGHT/2)-8);
         theta = randInt(0, 360);
@@ -40,13 +41,14 @@ int StudentWorld::init()
         x= r*x + VIEW_RADIUS;
         y= r*y + VIEW_RADIUS;
         if (!overlap(x, y)){
-            //m_actors.push_back(new Pit(x, y, 5, 3 ,2, this));
-             m_actors.push_back(new Pit(x, y, 1, 3 ,2, this));
+             //m_actors.push_back(new Pit(x, y, 5, 3 ,2, this));
+            m_actors.push_back(new Pit(x, y, 0, 0, 1, this));
         }
         else i--;
     }
     
-    
+    //add food
+    int nOfFood = min(5*getLevel(), 25);
     for (int i=0; i<nOfFood; i++){
         
         r = randInt(-(VIEW_HEIGHT/2)+8, (VIEW_HEIGHT/2)-8);
@@ -60,6 +62,9 @@ int StudentWorld::init()
         else i--;
     }
     
+    
+    //add dirt
+    int nOfDirt = max(180-20*getLevel(),20);
     for (int i=0; i<nOfDirt; i++) {
         
         r = randInt(-(VIEW_HEIGHT/2)+8, (VIEW_HEIGHT/2)-8);
@@ -79,31 +84,37 @@ int StudentWorld::init()
 
 int StudentWorld::move()
 {
-     ostringstream oss;
-       string str;
-       oss.fill('0');
-    if (getScore()<0)
-       oss<< "Score: -" << setw(6)<< -1*getScore() <<" Level: " << getLevel()<< " Lives: " <<getLives() << " Health: " <<player->numHitPoints() << " Sprays: " << player->numSprays() << " Flames: " <<player->numFlames();
-       if (getScore()>=0)
-       oss<< "Score: " << setw(6)<< getScore() <<" Level: " << getLevel()<< " Lives: " <<getLives() << " Health: " <<player->numHitPoints() << " Sprays: " << player->numSprays() << " Flames: " <<player->numFlames();
        
-       
-       str = oss.str();
-       setGameStatText(str);
-       
-       
+    //if player is dead decrease lives
+    if (!player->isAlive()) {
+        decLives();
+        return GWSTATUS_PLAYER_DIED;
+      }
+    
+    
+    //if all bacteria is dead and all pits have disappeared then nEXT LEVEL
+    
+    
        player->doSomething();
-       
+     if (!m_actors.empty()){
+         for (int i=0; i!=m_actors.size();){
+             m_actors[i]->doSomething();
+             if (!m_actors[i]->isAlive())
+                 kill(m_actors[i]);
+             else i++;
+         }
+     }
        
        double x,y;
        double ChanceFungus = randInt (0, max(510-getLevel()*10, 200));
-       double ChanceGoodie = randInt(0, max(510-getLevel()*10,250));
        if (ChanceFungus==0){
            double angle = randInt(0, 2*PI);
            x=VIEW_RADIUS+VIEW_RADIUS*cos(angle);
            y=VIEW_RADIUS+VIEW_RADIUS*sin(angle);
            m_actors.push_back(new Fungus(x, y, max(randInt(0, 300-10*getLevel()-1), 50) , this));
        }
+    
+        double ChanceGoodie = randInt(0, max(510-getLevel()*10,250));
        if (ChanceGoodie==0){
            double chance = randInt(0, 100);
            double angle = randInt(0, 2*PI);
@@ -122,24 +133,27 @@ int StudentWorld::move()
            }
        }
        
-       
-       if (!m_actors.empty()){
-           for (int i=0; i!=m_actors.size();){
-               m_actors[i]->doSomething();
-               if (!m_actors[i]->isAlive())
-                   kill(m_actors[i]);
-               else i++;
-           }
-       }
-       
-       
+ //set game text at the top of the window
+  ostringstream oss;
+    string str;
+    oss.fill('0');
+ if (getScore()<0)
+    oss<< "Score: -" << setw(6)<< -1*getScore() <<" Level: " << getLevel()<< " Lives: " <<getLives() << " Health: " <<player->numHitPoints() << " Sprays: " << player->numSprays() << " Flames: " <<player->numFlames();
+    if (getScore()>=0)
+    oss<< "Score: " << setw(6)<< getScore() <<"  Level: " << getLevel()<< "  Lives: " <<getLives() << "  Health: " <<player->numHitPoints() << "  Sprays: " << player->numSprays() << "  Flames: " <<player->numFlames();
+    
+    str = oss.str();
+    setGameStatText(str);
+    
        return GWSTATUS_CONTINUE_GAME;
+    
+    
+  
 }
 
 void StudentWorld::cleanUp()
 {
     if (player!=nullptr) {
-        player = nullptr;
         delete player;
     }
     vector <Actor*> :: iterator it;
@@ -166,8 +180,8 @@ bool StudentWorld::damageOneActor(Actor *a, int damage) {
     int dis=0;
     for (int i=0; i < m_actors.size();){
         dis = distance(a->getX(), a->getY(), m_actors[i]->getX(), m_actors[i]->getY());
-        if (dis <=2*SPRITE_RADIUS && m_actors[i]->takeDamage(1)){
-            m_actors[i]->takeDamage(1);
+        if (dis <=2*SPRITE_RADIUS && m_actors[i]->takeDamage(-1)){
+            m_actors[i]->takeDamage(damage);
             return true;
         }
         else i++;
