@@ -452,11 +452,8 @@ bool Bacteria::preventsLevelCompleting() const {
     return true;
 }
 
-int Bacteria::getFoodCount () const{
-    return m_foodCount;
-}
 
-bool Bacteria::helper(int &x, int &y){
+bool Bacteria::eat(int &x, int &y){
     
     Actor *a = getWorld()->getOverlappingEdible(this);
     if (a!=nullptr){
@@ -522,7 +519,7 @@ void EColi:: doSomething(){
     }
     
     //step 3
-    if (Bacteria::helper(x,y)){
+    if (Bacteria::eat(x,y)){
         Bacteria *b = new EColi (x, y, getWorld() );
         getWorld()->addActor(b);
         
@@ -664,7 +661,7 @@ void RegularSalmonella::doSomething() {
         
     }
     
-    if (Bacteria::helper(x,y)){
+    if (Bacteria::eat(x,y)){
         Bacteria *b = new RegularSalmonella (x, y, getWorld() );
         getWorld()->addActor(b);
         Salmonella::move();
@@ -707,7 +704,7 @@ void AggSalmonella::doSomething(){
         }
         
         
-        if (Bacteria::helper(x,y)){
+        if (Bacteria::eat(x,y)){
             Bacteria *b = new AggSalmonella (x, y, getWorld() );
             getWorld()->addActor(b);
         }
@@ -722,7 +719,7 @@ void AggSalmonella::doSomething(){
     }
     
     //step 4 & 5
-    if (Bacteria::helper(x,y)){
+    if (Bacteria::eat(x,y)){
         Bacteria *b = new AggSalmonella (x, y, getWorld() );
         getWorld()->addActor(b);
         Salmonella::move();

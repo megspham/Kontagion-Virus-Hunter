@@ -22,7 +22,7 @@ public:
     // Add an actor to the world.
     void addActor(Actor* a);
     
-    // If actor a ovelaps some live actor, damage that live actor by the
+    // If actor a overlaps some live actor, damage that live actor by the
     // indicated amount of damage and return true; otherwise, return false.
     bool damageOneActor(Actor* a, int damage);
     

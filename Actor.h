@@ -89,14 +89,14 @@ class Spray : public Projectile
 {
 public:
     Spray(double x, double y, Direction dir, StudentWorld *w);
-    // virtual void doSomething();
+ 
 };
 
 class Flame : public Projectile
 {
 public:
     Flame(double x, double y, Direction dir, StudentWorld *w);
-    // virtual void doSomething();
+    
 };
 
 class Goodie : public Actor
@@ -190,9 +190,7 @@ public:
     Bacteria( int imageID, double x, double y, int move, int hitPoints, StudentWorld *w);
     virtual bool takeDamage(int damage);
     virtual bool preventsLevelCompleting() const;
-    int getFoodCount() const;
-    
-    bool helper(int &x, int &y);
+    bool eat(int &x, int &y);
     
 private:
     int m_hp;
