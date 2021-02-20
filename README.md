@@ -1,6 +1,6 @@
 # Kontagion-Virus-Hunter
 
-CS 32 Winter 2021 with Mr. Carey Nachenberg 
+CS 32 Winter 2021 taught by Carey Nachenberg 
 
 This is a project that I did in CS 32 at UCLA where I developed a game through C++. 
 Basically, there is a hero named Socrates that defeat different monsters and the user 
